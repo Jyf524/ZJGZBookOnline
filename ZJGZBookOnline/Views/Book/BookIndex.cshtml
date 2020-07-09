@@ -1,0 +1,266 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>BookIndex</title>
+</head>
+<body>
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <div class="main_title">&nbsp;&nbsp;镇江高等职业技术学校在线图书馆</div>
+    <div class="main">
+        <!--导航开始-->
+        <div class="nav" id="box2_k">
+
+        </div>
+        <!--导航结束-->
+
+        <!--右边开始-->
+        <div class="con">
+            <!--右边开始-->
+            <div class="con_item">
+                <input name="searchString2" type="text" id="searchString2" class="form-control" style="display:none">
+                <table class="result_item">
+                    <tbody>
+                        <tr class="row_title">
+                            <td class="column1">
+                                <input name="searchString" type="text" id="searchString" class="form-control" placeholder="请输入ISBN号或者图书名称">
+                                
+                            </td>
+                            <td class="column2"><span style="float: left; line-height: 50px; margin-left: 50px;">
+                                <input type="submit" name="btnSearch" value="搜索" id="btnSearch" onclick="IndexAjax()" class="btn btn-default"></span>
+                                <span style="float: left; line-height: 50px; margin-left: 50px;">
+                                    <input type="submit" name="btnAdd" value="添加" onclick="Add()" id="btnAdd" class="btn btn-default"></span>
+                            </td>
+                            <td class="column3"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--搜索结束-->
+            <!--列表开始-->
+            <div class="con_item">
+                <table class="result_item">
+                    <tbody id="box1_k">
+                        
+                    </tbody>
+                </table>
+            </div>
+            <!--列表结束-->
+             <div class="row" style="text-align: center">
+            <div class="col-md-12  col-xs-12">
+                <div id="fy">
+                </div>
+                <div id="fybtn">
+                    <input type="text" id="page" value="1" name="page" hidden="hidden" />
+                    <button type="button" style="border: 0; background: none" id="btnf">首页</button>
+                    <button type="button" style="border: 0; background: none" id="btns">上一页</button>
+                    <button type="button" style="border: 0; background: none" id="btnx">下一页</button>
+                    <button type="button" style="border: 0; background: none" id="btne">尾页</button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!--右边结束-->
+    </div>
+
+
+
+    <!-- 模态框（Modal） -->
+    @using (Html.BeginForm("BookIndex", "Book", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">导入图书类别数据</h4>
+                        <a href="~/Files/模板.xls">模板下载</a>
+                    </div>
+                    <div class="modal-body">
+
+
+                        <input name="file" type="file" id="file" style="float: left" />
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">批量导入</button>
+                    </div>
+                    
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal -->
+        </div>
+    }
+    <script type="text/javascript">
+
+        function ChangeDateFormat(jsondate) {
+            jsondate = jsondate.replace("/Date(", "").replace(")/", "");
+            if (jsondate.indexOf("+") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("+"));
+            }
+            else if (jsondate.indexOf("-") > 0) {
+                jsondate = jsondate.substring(0, jsondate.indexOf("-"));
+            }
+            var date = new Date(parseInt(jsondate, 10));
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            var currentDate = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            return date.getFullYear() + "-" + month + "-" + currentDate;
+        };
+
+        var result1;
+        function IndexAjax() {
+            $.get('@Url.Action("BookIndex1", "Book")', { searchString: $("#searchString").val(), page: $("#page").val(), searchString2: $("#searchString2").val() },
+                function (result) {
+                    result1 = result;
+                    $('#box1_k').empty();
+                    $.each(result.aa, function (Index, list) {
+                        var a = ChangeDateFormat(list.PublishDate)
+                        $('#box1_k').append('<tr class="row_title"><td class="column1" rowspan="5"><div class="image_border"><img src="' + list.BookPicture + '" style="border-color: #F2F2F2; border-width: 1px; border-style: Solid; width: 225px;"></div></td><td class="column2">' + list.BookName + '</td><td class="column3"><span class="nav_title_icons" style="float: left; line-height: 50px; margin-left: 15px;"><a class="up" id="up' + list.BookID + '" onclick="up(' + list.BookID + ')" style="color: #2dbdd0; cursor: pointer;"><i class="glyphicon glyphicon-chevron-right"></i><span style="font-size: 12px;">图书简介</span></a><a id="down' + list.BookID + '" class="down" onclick="down(' + list.BookID + ')" style="cursor: pointer; display: none;"><i class="glyphicon glyphicon-chevron-down"></i><span style="font-size: 12px;">收起</span></a></span></td></tr><tr><td class="column2">作者：</td><td class="column3">' + list.BookAuthor + '</td></tr><tr><td class="column2">出版日期：</td><td class="column3">' + a + '</td></tr><tr><td class="column2">ISBN号：</td><td class="column3">' + list.BookISBN + '</td></tr><tr><td colspan="2"><div class="abstract" id="Content' + list.BookID + '"><p>图书简介：' + list.BookContent + '</p></div></tr>')
+                        //$('#box1_k').append(' <tr><td class="column2">简介：</td><td class="column3">' + list.BookContent + '</td></tr>')
+                       
+                    })
+                    $('#searchString2').val("");
+                    $('#fy').empty();
+                    if (result1.ItemNum > 0) {
+                        $('#fy').append("当前页：" + result1.pageNumber + ",共" + result1.pageNumx + ",页")
+                        $('#fybtn').show()
+                    }
+                    if (result1.ItemNum == 0) {
+                        $('#fy').append("暂无数据")
+                        $('#fybtn').hide()
+                    }
+                    Load(); 
+                })
+        }
+
+        function up(id) {
+            $('#Content' + id + '').slideDown("slow");
+            $('#up' + id + '').hide();
+            $('#down' + id + '').show();
+        }
+
+        function down(id) {
+            $('#Content' + id + '').slideUp("slow");
+            $('#down' + id + '').hide();
+            $('#up' + id + '').show();
+        }
+
+        function Search(id)
+        {
+            $('#searchString2').val(id);
+            IndexAjax();
+        }
+
+        function Type() {
+            $.get('@Url.Action("Type", "Book")', { searchString: $("#searchString").val() },
+                function (result) {
+                    $('#box2_k').empty();
+                    var bb = result.bb;
+                    $('#box2_k').append('<div class="nav_item"><div class="nav_item_title"><span class="nav_title_fonts" onclick="Search()" ">全部</span></div></div>')
+
+                    $.each(result.aa, function (Index, list) {
+                        
+                        $('#box2_k').append('<div class="nav_item" id="' + list.ColumnID + '"><div class="nav_item_title"><span class="nav_title_fonts" onclick="Search('+list.ColumnID+')"   id="' + list.ColumnID + '">' + list.ColumnName + '</span><span class="nav_title_icons"><a class="plus" href="javascript:void(0)"><i class="glyphicon glyphicon-plus"></i></a><a class="minus" href="javascript:void(0)"><i class="glyphicon glyphicon-minus"></i></a></span></div></div>')
+
+                        $.each(result.bb, function (Index1, list1) {
+                            if (list1.ParentID == list.ColumnID) {
+                                $('#' + list.ColumnID + '').append('<div class="nav_item_con"><div class="nav_item"><div class="nav_item_title"><span class="nav_title_fonts" onclick="Search(' + list1.ColumnID + ')"   id="' + list.ColumnID + '">' + list1.ColumnName + '</span></div></div></div>')
+                            }
+                            })
+                    })
+                    $('#box2_k').append('<div class="nav_item"><div class="nav_item_title"><span class="nav_title_fonts"><button style="border: none; background: none" data-toggle="modal" data-target="#myModal">导入图书类别数据</button></span></div></div>');
+
+                    Load();
+                    $(".plus").click(function () {
+                        $(this).parents(".nav_item").children(".nav_item_con").slideDown("slow");
+                        $(this).hide();
+                        $(this).siblings(".minus").show();
+                    });
+                    $(".minus").click(function () {
+                        $(this).parent().parent().parent().parent().find("div.nav_item_con").slideUp("slow");
+                        $(this).hide();
+                        $(this).siblings(".plus").show();
+                    });
+                })
+        }
+
+        $(function () {
+            Type();
+            IndexAjax();
+            
+            $("#check").click(function () {
+                $('#page').val("1");
+                IndexAjax();
+            });
+
+            $("#btnf").click(function () {
+                $('#page').val("1");
+                IndexAjax();
+            });
+
+            $("#btns").click(function () {
+                $('#page').val(result1.pageNumber <= 1 ? result1.pageNumber : result1.pageNumber - 1);
+                IndexAjax();
+            });
+
+            $("#btnx").click(function () {
+                $('#page').val(result1.pageNumber >= result1.pageNumx ? result1.pageNumber : result1.pageNumber + 1);
+                IndexAjax();
+            });
+
+            $("#btne").click(function () {
+                $('#page').val(result1.pageNumx);
+                IndexAjax();
+            });
+
+           
+          
+
+            
+
+        });
+
+        $(".plus").click(function () {
+            $("#").hide();
+            $(this).parents(".nav_item").children(".nav_item_con").slideDown("slow");
+            $(this).hide();
+            $(this).siblings(".minus").show();
+        });
+        $(".minus").click(function () {
+            $(this).parent().parent().parent().parent().find("div.nav_item_con").slideUp("slow");
+            $(this).hide();
+            $(this).siblings(".plus").show();
+        });
+
+        function Load() {
+            $(".down").hide();
+            $(".minus").hide();
+            $(".abstract").slideUp();
+            $(".nav_item_con").slideUp();
+            $(".plus").show();
+            $(".up").show();
+        }
+
+        function Add()
+        {
+            window.location.href = "../Book/BookAdd";
+        }
+
+        
+    </script>
+</body>
+</html>

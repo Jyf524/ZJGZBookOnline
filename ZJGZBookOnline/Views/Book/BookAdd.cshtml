@@ -1,0 +1,100 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>BookAdd</title>
+</head>
+
+<body>
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        function Back() {
+            window.location.href = "../Book/BookIndex";
+        }
+
+        function Add() {
+
+            var fd = new FormData();
+
+            fd.append("BookPicture", $('#file-0')[0].files[0]);
+            fd.append("BookName", $('#BookName').val());
+            fd.append("BookAuthor", $('#BookAuthor').val());
+            fd.append("BookISBN", $('#BookISBN').val());
+            fd.append("BookNum", $('#BookNum').val());
+            fd.append("BookContent", $('#BookContent').val());
+            fd.append("BookNum", $('#BookNum').val());
+            fd.append("BookAddDate", $('#BookAddDate').val());
+            fd.append("PublishDate", $('#PublishDate').val());
+            $.ajax({
+                url: "@Url.Action("BookAdd1", "Book")",
+            type: "post",
+            dataType: "json",
+            data: fd,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                if (data == "添加成功") {
+
+                    alert("添加成功!");
+                    window.location.href = "../Book/BookIndex";
+                }
+                else {
+                    alert(data);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                /*弹出jqXHR对象的信息*/
+                console.log(jqXHR.responseText, jqXHR.status, jqXHR.readyState, jqXHR.statusText, textStatus, errorThrown);
+
+            }
+        });
+    }
+
+    </script>
+
+    <div class="main_title">&nbsp;&nbsp;镇江高等职业技术学校在线图书馆</div>
+    <div class="main">
+    </div>
+    <div>
+        图书封面图：<input type="file"   class="form-control" id="file-0" style="float: left" name="file-0">
+    </div>
+    <div>
+        图书名称：<input type="text" class="form-control" id="BookName" style="float: left" name="BookName" placeholder="请输入图书名称">
+    </div>
+    <div>
+        作者：<input type="text" class="form-control" id="BookAuthor" style="float: left" name="BookAuthor" placeholder="请输入作者">
+    </div>
+    <div>
+        出版日期：<input type="date" class="form-control" id="PublishDate" style="float: left" name="PublishDate">
+    </div>
+    <div>
+        ISBN号：<input type="text" class="form-control" id="BookISBN" style="float: left" name="BookISBN" placeholder="请输入ISBN号">
+    </div>
+    <div>
+        图书简介：<input type="text" class="form-control" id="BookContent" style="float: left" name="BookContent" placeholder="请输入图书简介">
+    </div>
+    <div>
+        库存：<input type="text" class="form-control" id="BookNum" style="float: left" name="BookNum" placeholder="请输入库存">
+    </div>
+    <div>
+        入库时间：<input type="date" class="form-control" id="BookAddDate" style="float: left" name="BookAddDate">
+    </div>
+    <div>
+        <button type="button" onclick="Back()">返回</button>
+        <button type="button" onclick="Add()">添加</button>
+    </div>
+</body>
+</html>
